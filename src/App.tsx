@@ -44,7 +44,6 @@ import { openclawKeys, useOpenClawHealth } from "@/hooks/useOpenClaw";
 import { hermesKeys, useOpenHermesWebUI } from "@/hooks/useHermes";
 import { hermesApi } from "@/lib/api/hermes";
 import { useProxyStatus } from "@/hooks/useProxyStatus";
-import { useAutoCompact } from "@/hooks/useAutoCompact";
 import { useUsageCacheBridge } from "@/hooks/useUsageCacheBridge";
 import { useLastValidValue } from "@/hooks/useLastValidValue";
 import { extractErrorMessage } from "@/utils/errorUtils";
@@ -56,7 +55,7 @@ import {
   DRAG_REGION_ATTR,
   DRAG_REGION_STYLE,
 } from "@/lib/platform";
-import { AppSwitcher } from "@/components/AppSwitcher";
+import { ProviderIcon } from "@/components/ProviderIcon";
 import { ProviderList } from "@/components/providers/ProviderList";
 import { AddProviderDialog } from "@/components/providers/AddProviderDialog";
 import { EditProviderDialog } from "@/components/providers/EditProviderDialog";
@@ -90,6 +89,7 @@ import OpenClawHealthBanner from "@/components/openclaw/OpenClawHealthBanner";
 import HermesMemoryPanel from "@/components/hermes/HermesMemoryPanel";
 
 type View =
+  | "overview"
   | "providers"
   | "settings"
   | "prompts"
@@ -112,7 +112,8 @@ interface WebDavSyncStatusUpdatedPayload {
 }
 
 const DEFAULT_DRAG_BAR_HEIGHT = isWindows() || isLinux() ? 0 : 28; // px
-const HEADER_HEIGHT = 64; // px
+const HEADER_HEIGHT = 56; // px
+const SIDEBAR_WIDTH = 64; // px
 
 const STORAGE_KEY = "cc-switch-last-app";
 const VALID_APPS: AppId[] = [
@@ -134,6 +135,7 @@ const getInitialApp = (): AppId => {
 
 const VIEW_STORAGE_KEY = "cc-switch-last-view";
 const VALID_VIEWS: View[] = [
+  "overview",
   "providers",
   "settings",
   "prompts",
@@ -155,7 +157,7 @@ const getInitialView = (): View => {
   if (saved && VALID_VIEWS.includes(saved)) {
     return saved;
   }
-  return "providers";
+  return "overview";
 };
 
 function App() {
@@ -176,7 +178,6 @@ function App() {
   const useAppWindowControls =
     isLinux() && (settingsData?.useAppWindowControls ?? false);
   const dragBarHeight = useAppWindowControls ? 32 : DEFAULT_DRAG_BAR_HEIGHT;
-  const contentTopOffset = dragBarHeight + HEADER_HEIGHT;
   const visibleApps: VisibleApps = settingsData?.visibleApps ?? {
     claude: true,
     codex: true,
@@ -228,9 +229,6 @@ function App() {
 
   const effectiveEditingProvider = useLastValidValue(editingProvider);
   const effectiveUsageProvider = useLastValidValue(usageProvider);
-
-  const toolbarRef = useRef<HTMLDivElement>(null);
-  const isToolbarCompact = useAutoCompact(toolbarRef);
 
   useUsageCacheBridge();
 
@@ -611,7 +609,7 @@ function App() {
       if (document.body.style.overflow === "hidden") return;
 
       const view = currentViewRef.current;
-      if (view === "providers") return;
+      if (view === "providers" || view === "overview") return;
 
       if (isTextEditableTarget(event.target)) return;
 
@@ -955,6 +953,314 @@ function App() {
           return <ToolsPanel />;
         case "openclawAgents":
           return <AgentsDefaultsPanel />;
+        case "overview":
+          return (
+            <div className="px-6 py-6 max-w-7xl mx-auto">
+              {/* Quick Stats */}
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold mb-4">
+                  {t("overview.quickStats", { defaultValue: "快速统计" })}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Total Providers */}
+                  <div
+                    className="bg-card rounded-xl p-6 border border-border hover:border-primary/50 transition-colors cursor-pointer"
+                    onClick={() => setCurrentView("providers")}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-muted-foreground">
+                        {t("overview.totalProviders", { defaultValue: "总供应商" })}
+                      </span>
+                      <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                        <Plus className="w-4 h-4 text-blue-500" />
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold">
+                      {Object.keys(providers).length}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {t("apps." + activeApp)}
+                    </div>
+                  </div>
+
+                  {/* MCP Servers */}
+                  <div
+                    className="bg-card rounded-xl p-6 border border-border hover:border-primary/50 transition-colors cursor-pointer"
+                    onClick={() => setCurrentView("mcp")}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-muted-foreground">
+                        {t("overview.mcpServers", { defaultValue: "MCP 服务器" })}
+                      </span>
+                      <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                        <McpIcon size={16} />
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold">MCP</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {t("overview.clickToManage", { defaultValue: "点击管理" })}
+                    </div>
+                  </div>
+
+                  {/* Skills */}
+                  <div
+                    className="bg-card rounded-xl p-6 border border-border hover:border-primary/50 transition-colors cursor-pointer"
+                    onClick={() => setCurrentView("skills")}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-muted-foreground">
+                        {t("overview.skills", { defaultValue: "技能" })}
+                      </span>
+                      <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+                        <Wrench className="w-4 h-4 text-green-500" />
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold">Skills</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {t("overview.clickToManage", { defaultValue: "点击管理" })}
+                    </div>
+                  </div>
+
+                  {/* Settings */}
+                  <div
+                    className="bg-card rounded-xl p-6 border border-border hover:border-primary/50 transition-colors cursor-pointer"
+                    onClick={() => {
+                      setSettingsDefaultTab("general");
+                      setCurrentView("settings");
+                    }}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-muted-foreground">
+                        {t("overview.settings", { defaultValue: "设置" })}
+                      </span>
+                      <div className="w-8 h-8 rounded-lg bg-gray-500/10 flex items-center justify-center">
+                        <Settings className="w-4 h-4 text-gray-500" />
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold">
+                      {t("overview.configure", { defaultValue: "配置" })}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {t("overview.clickToManage", { defaultValue: "点击管理" })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold mb-4">
+                  {t("overview.quickActions", { defaultValue: "快速操作" })}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <Button
+                    variant="outline"
+                    className="h-auto flex-col items-start p-4 hover:bg-blue-500/5 hover:border-blue-500/50"
+                    onClick={() => setIsAddOpen(true)}
+                  >
+                    <div className="flex items-center justify-between w-full mb-2">
+                      <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                        <Plus className="w-5 h-5 text-blue-500" />
+                      </div>
+                    </div>
+                    <div className="font-semibold mb-1">
+                      {t("overview.addProvider", { defaultValue: "添加供应商" })}
+                    </div>
+                    <div className="text-sm text-muted-foreground text-left">
+                      {t("overview.addProviderDesc", {
+                        defaultValue: "为当前应用添加新的AI供应商",
+                      })}
+                    </div>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    className="h-auto flex-col items-start p-4 hover:bg-purple-500/5 hover:border-purple-500/50"
+                    onClick={() => setCurrentView("prompts")}
+                  >
+                    <div className="flex items-center justify-between w-full mb-2">
+                      <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                        <Book className="w-5 h-5 text-purple-500" />
+                      </div>
+                    </div>
+                    <div className="font-semibold mb-1">
+                      {t("overview.managePrompts", { defaultValue: "管理提示词" })}
+                    </div>
+                    <div className="text-sm text-muted-foreground text-left">
+                      {t("overview.managePromptsDesc", {
+                        defaultValue: "编辑和管理自定义提示词",
+                      })}
+                    </div>
+                  </Button>
+
+                  {hasSessionSupport && (
+                    <Button
+                      variant="outline"
+                      className="h-auto flex-col items-start p-4 hover:bg-amber-500/5 hover:border-amber-500/50"
+                      onClick={() => setCurrentView("sessions")}
+                    >
+                      <div className="flex items-center justify-between w-full mb-2">
+                        <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                          <History className="w-5 h-5 text-amber-500" />
+                        </div>
+                      </div>
+                      <div className="font-semibold mb-1">
+                        {t("overview.viewSessions", { defaultValue: "查看会话" })}
+                      </div>
+                      <div className="text-sm text-muted-foreground text-left">
+                        {t("overview.viewSessionsDesc", {
+                          defaultValue: "浏览和管理历史对话记录",
+                        })}
+                      </div>
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Active Apps */}
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold mb-4">
+                  {t("overview.activeApps", { defaultValue: "活跃应用" })}
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {VALID_APPS.map((app) => {
+                    if (!visibleApps[app]) return null;
+                    const appDisplayName: Record<AppId, string> = {
+                      claude: "Claude",
+                      codex: "Codex",
+                      gemini: "Gemini",
+                      opencode: "OpenCode",
+                      openclaw: "OpenClaw",
+                      hermes: "Hermes",
+                    };
+                    const appIconName: Record<AppId, string> = {
+                      claude: "claude",
+                      codex: "openai",
+                      gemini: "gemini",
+                      opencode: "opencode",
+                      openclaw: "openclaw",
+                      hermes: "hermes",
+                    };
+                    const isActive = activeApp === app;
+                    const providerCount = Object.keys(providers).length;
+
+                    return (
+                      <div
+                        key={app}
+                        className={cn(
+                          "bg-card rounded-xl p-4 border cursor-pointer transition-all hover:scale-105",
+                          isActive
+                            ? "border-blue-500 shadow-lg shadow-blue-500/20"
+                            : "border-border hover:border-primary/50",
+                        )}
+                        onClick={() => {
+                          setActiveApp(app);
+                          setCurrentView("providers");
+                        }}
+                      >
+                        <div className="flex flex-col items-center text-center">
+                          <ProviderIcon
+                            icon={appIconName[app]}
+                            name={appDisplayName[app]}
+                            size={32}
+                          />
+                          <div className="mt-2 font-medium text-sm">
+                            {appDisplayName[app]}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {providerCount} {t("overview.providers", { defaultValue: "供应商" })}
+                          </div>
+                          {isActive && (
+                            <div className="mt-2 w-full h-1 bg-blue-500 rounded-full" />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* System Status */}
+              <div>
+                <h2 className="text-xl font-semibold mb-4">
+                  {t("overview.systemStatus", { defaultValue: "系统状态" })}
+                </h2>
+                <div className="bg-card rounded-xl border border-border divide-y divide-border">
+                  {/* Proxy Status */}
+                  <div className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={cn(
+                          "w-3 h-3 rounded-full",
+                          isProxyRunning ? "bg-green-500" : "bg-gray-400",
+                        )}
+                      />
+                      <div>
+                        <div className="font-medium">
+                          {t("overview.proxyStatus", { defaultValue: "代理状态" })}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {isProxyRunning
+                            ? t("overview.proxyRunning", {
+                                defaultValue: "正在运行",
+                              })
+                            : t("overview.proxyStopped", {
+                                defaultValue: "已停止",
+                              })}
+                        </div>
+                      </div>
+                    </div>
+                    {isProxyRunning && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSettingsDefaultTab("proxy");
+                          setCurrentView("settings");
+                        }}
+                      >
+                        {t("overview.configure", { defaultValue: "配置" })}
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Current Provider */}
+                  {currentProviderId && (
+                    <div className="p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full bg-blue-500" />
+                        <div>
+                          <div className="font-medium">
+                            {t("overview.currentProvider", {
+                              defaultValue: "当前供应商",
+                            })}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {providers[currentProviderId]?.name || "-"}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* App Info */}
+                  <div className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full bg-purple-500" />
+                      <div>
+                        <div className="font-medium">
+                          {t("overview.currentApp", { defaultValue: "当前应用" })}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {t(`apps.${activeApp}`)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
         default:
           return (
             <div className="px-6 flex flex-col flex-1 min-h-0 overflow-hidden">
@@ -1042,59 +1348,195 @@ function App() {
 
   return (
     <div
-      className="flex flex-col h-screen overflow-hidden bg-background text-foreground selection:bg-primary/30 pb-4"
-      style={{ overflowX: "hidden", paddingTop: contentTopOffset }}
+      className="flex flex-row h-screen overflow-hidden bg-background text-foreground selection:bg-primary/30"
+      style={{ overflowX: "hidden", paddingTop: dragBarHeight }}
     >
-      {(dragBarHeight > 0 || useAppWindowControls) && (
+      {/* Sidebar */}
+      <aside
+        className="flex-shrink-0 flex flex-col border-r border-border bg-muted/30"
+        style={{ width: SIDEBAR_WIDTH }}
+      >
+        {/* Logo area - Overview button */}
         <div
-          className="fixed top-0 left-0 right-0 z-[70] flex items-center justify-end px-2"
-          data-tauri-drag-region
-          style={{ WebkitAppRegion: "drag", height: dragBarHeight } as any}
+          className="flex items-center justify-center pt-4 pb-2"
+          style={{ height: HEADER_HEIGHT }}
         >
-          {useAppWindowControls && (
-            <div
-              className="flex items-center gap-1"
-              style={{ WebkitAppRegion: "no-drag" } as any}
+          <button
+            type="button"
+            onClick={() => setCurrentView("overview")}
+            className={cn(
+              "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 font-bold text-lg",
+              currentView === "overview"
+                ? "bg-background shadow-lg shadow-black/10 dark:shadow-black/20 scale-105"
+                : "hover:bg-background/50 hover:scale-100",
+            )}
+            title={t("overview.title", { defaultValue: "概览" })}
+          >
+            {currentView === "overview" && (
+              <div className="absolute left-0 w-1 h-6 bg-blue-500 rounded-r-full" />
+            )}
+            <svg
+              viewBox="0 0 24 24"
+              className={cn(
+                "w-6 h-6",
+                currentView === "overview"
+                  ? "text-blue-500"
+                  : "text-muted-foreground",
+              )}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
             >
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => void handleWindowMinimize()}
-                title={t("header.windowMinimize")}
-                className="h-7 w-7"
-              >
-                <Minus className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => void handleWindowToggleMaximize()}
-                title={
-                  isWindowMaximized
-                    ? t("header.windowRestore")
-                    : t("header.windowMaximize")
-                }
-                className="h-7 w-7"
-              >
-                {isWindowMaximized ? (
-                  <Minimize2 className="w-4 h-4" />
-                ) : (
-                  <Maximize2 className="w-4 h-4" />
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+          </button>
+        </div>
+
+        {/* App Switcher in Sidebar */}
+        <div className="flex-1 flex flex-col items-center py-4 gap-2 overflow-y-auto">
+          {VALID_APPS.map((app) => {
+            if (!visibleApps[app]) return null;
+            const isActive = activeApp === app && currentView === "providers";
+            const appDisplayName: Record<AppId, string> = {
+              claude: "Claude",
+              codex: "Codex",
+              gemini: "Gemini",
+              opencode: "OpenCode",
+              openclaw: "OpenClaw",
+              hermes: "Hermes",
+            };
+            const appIconName: Record<AppId, string> = {
+              claude: "claude",
+              codex: "openai",
+              gemini: "gemini",
+              opencode: "opencode",
+              openclaw: "openclaw",
+              hermes: "hermes",
+            };
+
+            return (
+              <button
+                key={app}
+                type="button"
+                onClick={() => {
+                  setActiveApp(app);
+                  setCurrentView("providers");
+                }}
+                className={cn(
+                  "group relative w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200",
+                  isActive
+                    ? "bg-background shadow-lg shadow-black/10 dark:shadow-black/20 scale-105"
+                    : "hover:bg-background/50 hover:scale-100",
                 )}
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => void handleWindowClose()}
-                title={t("header.windowClose")}
-                className="h-7 w-7 hover:bg-red-500/15 hover:text-red-500"
+                title={appDisplayName[app]}
               >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
+                <ProviderIcon
+                  icon={appIconName[app]}
+                  name={appDisplayName[app]}
+                  size={24}
+                />
+                {isActive && (
+                  <div className="absolute left-0 w-1 h-6 bg-blue-500 rounded-r-full" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Bottom actions */}
+        <div className="flex flex-col items-center py-4 gap-2 border-t border-border/50">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              setSettingsDefaultTab("general");
+              setCurrentView("settings");
+            }}
+            title={t("common.settings")}
+            className="w-10 h-10 hover:bg-background/50"
+          >
+            <Settings className="w-5 h-5" />
+          </Button>
+          <UpdateBadge
+            onClick={() => {
+              setSettingsDefaultTab("about");
+              setCurrentView("settings");
+            }}
+          />
+          {isCurrentAppTakeoverActive && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                setSettingsDefaultTab("usage");
+                setCurrentView("settings");
+              }}
+              title={t("usage.title", {
+                defaultValue: "使用统计",
+              })}
+              className="w-10 h-10 hover:bg-background/50"
+            >
+              <BarChart2 className="w-5 h-5" />
+            </Button>
           )}
         </div>
-      )}
+      </aside>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {(dragBarHeight > 0 || useAppWindowControls) && (
+          <div
+            className="fixed top-0 left-0 right-0 z-[70] flex items-center justify-end px-2"
+            data-tauri-drag-region
+            style={{ WebkitAppRegion: "drag", height: dragBarHeight } as any}
+          >
+            {useAppWindowControls && (
+              <div
+                className="flex items-center gap-1"
+                style={{ WebkitAppRegion: "no-drag" } as any}
+              >
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => void handleWindowMinimize()}
+                  title={t("header.windowMinimize")}
+                  className="h-7 w-7"
+                >
+                  <Minus className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => void handleWindowToggleMaximize()}
+                  title={
+                    isWindowMaximized
+                      ? t("header.windowRestore")
+                      : t("header.windowMaximize")
+                  }
+                  className="h-7 w-7"
+                >
+                  {isWindowMaximized ? (
+                    <Minimize2 className="w-4 h-4" />
+                  ) : (
+                    <Maximize2 className="w-4 h-4" />
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => void handleWindowClose()}
+                  title={t("header.windowClose")}
+                  className="h-7 w-7 hover:bg-red-500/15 hover:text-red-500"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
       {showEnvBanner && envConflicts.length > 0 && (
         <EnvWarningBanner
           conflicts={envConflicts}
@@ -1121,15 +1563,14 @@ function App() {
       )}
 
       <header
-        className="fixed z-50 w-full transition-all duration-300 bg-background/80 backdrop-blur-md"
+        className="fixed z-50 transition-all duration-300 bg-background/80 backdrop-blur-md"
+        style={{
+          left: SIDEBAR_WIDTH,
+          right: 0,
+          top: dragBarHeight,
+          height: HEADER_HEIGHT,
+        }}
         {...DRAG_REGION_ATTR}
-        style={
-          {
-            ...DRAG_REGION_STYLE,
-            top: dragBarHeight,
-            height: HEADER_HEIGHT,
-          } as any
-        }
       >
         <div
           className="flex h-full items-center justify-between gap-2 px-6"
@@ -1140,7 +1581,7 @@ function App() {
             className="flex items-center gap-1"
             style={{ WebkitAppRegion: "no-drag" } as any}
           >
-            {currentView !== "providers" ? (
+            {currentView !== "providers" && currentView !== "overview" ? (
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
@@ -1177,59 +1618,7 @@ function App() {
                   {currentView === "hermesMemory" && t("hermes.memory.title")}
                 </h1>
               </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <div className="relative inline-flex items-center">
-                  <a
-                    href="https://github.com/farion1231/cc-switch"
-                    target="_blank"
-                    rel="noreferrer"
-                    className={cn(
-                      "text-xl font-semibold transition-colors",
-                      isProxyRunning && isCurrentAppTakeoverActive
-                        ? "text-emerald-500 hover:text-emerald-600 dark:text-emerald-400 dark:hover:text-emerald-300"
-                        : "text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300",
-                    )}
-                  >
-                    CC Switch
-                  </a>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    setSettingsDefaultTab("general");
-                    setCurrentView("settings");
-                  }}
-                  title={t("common.settings")}
-                  className="hover:bg-black/5 dark:hover:bg-white/5"
-                >
-                  <Settings className="w-4 h-4" />
-                </Button>
-                <UpdateBadge
-                  onClick={() => {
-                    setSettingsDefaultTab("about");
-                    setCurrentView("settings");
-                  }}
-                />
-                {isCurrentAppTakeoverActive && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setSettingsDefaultTab("usage");
-                      setCurrentView("settings");
-                    }}
-                    title={t("usage.title", {
-                      defaultValue: "使用统计",
-                    })}
-                    className="hover:bg-black/5 dark:hover:bg-white/5"
-                  >
-                    <BarChart2 className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-            )}
+            ) : null}
           </div>
 
           <div className="flex flex-1 min-w-0 items-center justify-end gap-1.5">
@@ -1249,10 +1638,7 @@ function App() {
                   )}
                 </div>
               )}
-            <div
-              ref={toolbarRef}
-              className="flex flex-1 min-w-0 overflow-x-hidden items-center py-4 pr-2"
-            >
+            <div className="flex flex-1 min-w-0 overflow-x-hidden items-center py-4 pr-2">
               <div
                 className="flex shrink-0 items-center gap-1.5 ml-auto"
                 style={{ WebkitAppRegion: "no-drag" } as any}
@@ -1360,13 +1746,6 @@ function App() {
                 )}
                 {currentView === "providers" && (
                   <>
-                    <AppSwitcher
-                      activeApp={activeApp}
-                      onSwitch={setActiveApp}
-                      visibleApps={visibleApps}
-                      compact={isToolbarCompact}
-                    />
-
                     <div className="flex items-center gap-1 p-1 bg-muted rounded-xl">
                       <AnimatePresence mode="wait">
                         <motion.div
@@ -1541,7 +1920,10 @@ function App() {
         </div>
       </header>
 
-      <main className="flex-1 min-h-0 flex flex-col overflow-y-auto animate-fade-in">
+      <main
+        className="flex-1 min-h-0 flex flex-col overflow-y-auto animate-fade-in"
+        style={{ paddingTop: HEADER_HEIGHT }}
+      >
         {isOpenClawView && openclawHealthWarnings.length > 0 && (
           <OpenClawHealthBanner warnings={openclawHealthWarnings} />
         )}
@@ -1629,6 +2011,7 @@ function App() {
 
       <DeepLinkImportDialog />
       <FirstRunNoticeDialog />
+      </div>
     </div>
   );
 }
