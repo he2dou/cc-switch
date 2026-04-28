@@ -955,7 +955,7 @@ function App() {
           return <AgentsDefaultsPanel />;
         case "overview":
           return (
-            <div className="px-6 py-6 max-w-7xl mx-auto">
+            <div className="px-6 py-6">
               {/* Quick Stats */}
               <div className="mb-8">
                 <h2 className="text-xl font-semibold mb-4">
@@ -1265,7 +1265,7 @@ function App() {
           return (
             <div className="px-6 flex flex-col flex-1 min-h-0 overflow-hidden">
               <div className="flex-1 overflow-y-auto overflow-x-hidden pb-12">
-                <div className="max-w-7xl mx-auto px-1">
+                <div className="px-1">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={activeApp}
@@ -1746,7 +1746,7 @@ function App() {
                     </Button>
                   </>
                 )}
-                {currentView === "providers" && (
+                {(currentView === "providers" || currentView === "overview") && (
                   <>
                     <div className="flex items-center gap-1">
                       <AnimatePresence mode="wait">
@@ -1962,7 +1962,7 @@ function App() {
                 )}
               </div>
 
-              {currentView === "providers" && (
+              {(currentView === "providers" || currentView === "overview") && (
                 <Button
                   onClick={() => setIsAddOpen(true)}
                   size="icon"
