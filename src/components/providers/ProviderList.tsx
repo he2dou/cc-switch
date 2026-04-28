@@ -303,11 +303,11 @@ export function ProviderList({
 
   if (isLoading) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-2">
         {[0, 1, 2].map((index) => (
           <div
             key={index}
-            className="w-full border border-dashed rounded-lg h-28 border-muted-foreground/40 bg-muted/40"
+            className="w-full border border-dashed rounded-lg h-20 border-muted-foreground/40 bg-muted/40"
           />
         ))}
       </div>
@@ -334,7 +334,7 @@ export function ProviderList({
         items={filteredProviders.map((provider) => provider.id)}
         strategy={verticalListSortingStrategy}
       >
-        <div className="space-y-3">
+        <div className="space-y-2">
           {filteredProviders.map((provider) => {
             const isOmo = provider.category === "omo";
             const isOmoSlim = provider.category === "omo-slim";

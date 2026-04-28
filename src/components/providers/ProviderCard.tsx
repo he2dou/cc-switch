@@ -250,7 +250,7 @@ export function ProviderCard({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-xl border border-border p-4 transition-all duration-300",
+        "relative overflow-hidden rounded-xl border border-border p-3 transition-all duration-300",
         "bg-card text-card-foreground group",
         isAutoFailoverEnabled || isProxyTakeover
           ? "hover:border-emerald-500/50"
@@ -275,7 +275,7 @@ export function ProviderCard({
             : "opacity-0",
         )}
       />
-      <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 items-center gap-2">
           <button
             type="button"
@@ -300,9 +300,9 @@ export function ProviderCard({
             />
           </div>
 
-          <div className="space-y-1">
-            <div className="flex flex-wrap items-center gap-2 min-h-7">
-              <h3 className="text-base font-semibold leading-none">
+          <div className="space-y-0.5">
+            <div className="flex flex-wrap items-center gap-2 min-h-6">
+              <h3 className="text-sm font-semibold leading-none">
                 {provider.name}
               </h3>
 
@@ -375,7 +375,7 @@ export function ProviderCard({
           </div>
         </div>
 
-        <div className="flex items-center ml-auto min-w-0 gap-3">
+        <div className="flex items-center ml-auto min-w-0 gap-2">
           <div className="ml-auto">
             <div className="flex items-center gap-1">
               {isCopilot ? (
