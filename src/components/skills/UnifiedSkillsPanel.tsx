@@ -97,10 +97,8 @@ const UnifiedSkillsPanel = React.forwardRef<
   const {
     data: skillUpdates,
     refetch: checkUpdates,
-    isFetching: isCheckingUpdates,
   } = useCheckSkillUpdates();
   const updateSkillMutation = useUpdateSkill();
-  const [isUpdatingAll, setIsUpdatingAll] = useState(false);
 
   const updatesMap = useMemo(() => {
     const map: Record<string, SkillUpdateInfo> = {};
@@ -253,28 +251,6 @@ const UnifiedSkillsPanel = React.forwardRef<
     }
   };
 
-  const handleUpdateAll = async () => {
-    if (!skillUpdates || skillUpdates.length === 0) return;
-    setIsUpdatingAll(true);
-    let successCount = 0;
-    for (const update of skillUpdates) {
-      try {
-        await updateSkillMutation.mutateAsync(update.id);
-        successCount++;
-      } catch (error) {
-        toast.error(t("skills.updateFailed"), {
-          description: `${update.name}: ${String(error)}`,
-        });
-      }
-    }
-    setIsUpdatingAll(false);
-    if (successCount > 0) {
-      toast.success(t("skills.updateAllSuccess", { count: successCount }), {
-        closeButton: true,
-      });
-    }
-  };
-
   const handleOpenRestoreFromBackup = async () => {
     setRestoreDialogOpen(true);
     try {
@@ -345,57 +321,12 @@ const UnifiedSkillsPanel = React.forwardRef<
 
   return (
     <div className="px-6 flex flex-col flex-1 min-h-0 overflow-hidden">
-      <div className="flex items-center justify-between">
+      <div className="w-full">
         <AppCountBar
           totalLabel={t("skills.installed", { count: skills?.length || 0 })}
           counts={enabledCounts}
           appIds={SKILLS_APP_IDS}
         />
-        <div className="flex items-center gap-1.5">
-          <div
-            className="transition-all duration-300 ease-out overflow-hidden"
-            style={{
-              maxWidth:
-                skillUpdates && skillUpdates.length > 0 ? "200px" : "0px",
-              opacity: skillUpdates && skillUpdates.length > 0 ? 1 : 0,
-            }}
-          >
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="h-7 text-xs gap-1 whitespace-nowrap"
-              onClick={handleUpdateAll}
-              disabled={isUpdatingAll || updateSkillMutation.isPending}
-            >
-              {isUpdatingAll ? (
-                <Loader2 size={12} className="animate-spin" />
-              ) : (
-                <RefreshCw size={12} />
-              )}
-              {isUpdatingAll
-                ? t("skills.updatingAll")
-                : t("skills.updateAll", { count: skillUpdates?.length ?? 0 })}
-            </Button>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-7 text-xs gap-1"
-            onClick={handleCheckUpdates}
-            disabled={isCheckingUpdates || !skills || skills.length === 0}
-          >
-            {isCheckingUpdates ? (
-              <Loader2 size={12} className="animate-spin" />
-            ) : (
-              <RefreshCw size={12} />
-            )}
-            {isCheckingUpdates
-              ? t("skills.checkingUpdates")
-              : t("skills.checkUpdates")}
-          </Button>
-        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto overflow-x-hidden pb-24">

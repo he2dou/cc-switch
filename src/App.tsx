@@ -1452,7 +1452,7 @@ function App() {
         </div>
 
         {/* Bottom actions */}
-        <div className="flex flex-col items-center py-8 gap-2">
+        <div className="mt-2 flex flex-col items-center py-8 gap-2">
           <Button
             variant="ghost"
             size="icon"
@@ -1683,6 +1683,15 @@ function App() {
                 )}
                 {currentView === "skills" && (
                   <>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => unifiedSkillsPanelRef.current?.checkUpdates()}
+                      className="hover:bg-black/5 dark:hover:bg-white/5"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      {t("skills.checkUpdates")}
+                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"
