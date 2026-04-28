@@ -1365,7 +1365,10 @@ function App() {
         >
           <button
             type="button"
-            onClick={() => setCurrentView("overview")}
+            onClick={() => {
+              setActiveApp(getFirstVisibleApp());
+              setCurrentView("overview");
+            }}
             className={cn(
               "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 font-bold text-lg",
               currentView === "overview"
@@ -1586,7 +1589,7 @@ function App() {
             {currentView !== "providers" && currentView !== "overview" ? (
               <div className="flex items-center gap-2">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="icon"
                   onClick={() =>
                     setCurrentView(
@@ -1746,18 +1749,12 @@ function App() {
                     </Button>
                   </>
                 )}
-                {(currentView === "providers" || currentView === "overview") && (
+                {currentView === "providers" && (
                   <>
                     <div className="flex items-center gap-1">
                       <AnimatePresence mode="wait">
                         <motion.div
-                          key={
-                            activeApp === "openclaw"
-                              ? "openclaw"
-                              : activeApp === "hermes"
-                                ? "hermes"
-                                : "default"
-                          }
+                          key={`${activeApp}-${currentView}`}
                           className="flex items-center gap-1"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
@@ -1962,7 +1959,7 @@ function App() {
                 )}
               </div>
 
-              {(currentView === "providers" || currentView === "overview") && (
+              {currentView === "providers" && (
                 <Button
                   onClick={() => setIsAddOpen(true)}
                   size="icon"
