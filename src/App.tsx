@@ -1621,7 +1621,7 @@ function App() {
             ) : null}
           </div>
 
-          <div className="flex flex-1 min-w-0 items-center justify-end gap-1.5">
+          <div className="flex flex-1 min-w-0 items-center gap-1.5">
             {currentView === "providers" &&
               activeApp !== "opencode" &&
               activeApp !== "openclaw" &&
@@ -1638,9 +1638,9 @@ function App() {
                   )}
                 </div>
               )}
-            <div className="flex flex-1 min-w-0 overflow-x-hidden items-center py-4 pr-2">
+            <div className="flex flex-1 min-w-0 overflow-x-hidden items-center justify-between py-4 pr-2">
               <div
-                className="flex shrink-0 items-center gap-1.5 ml-auto"
+                className="flex shrink-0 items-center gap-1.5"
                 style={{ WebkitAppRegion: "no-drag" } as any}
               >
                 {currentView === "prompts" && (
@@ -1904,17 +1904,20 @@ function App() {
                         </motion.div>
                       </AnimatePresence>
                     </div>
-
-                    <Button
-                      onClick={() => setIsAddOpen(true)}
-                      size="icon"
-                      className={`ml-2 ${addActionButtonClass}`}
-                    >
-                      <Plus className="w-5 h-5" />
-                    </Button>
                   </>
                 )}
               </div>
+
+              {currentView === "providers" && (
+                <Button
+                  onClick={() => setIsAddOpen(true)}
+                  size="icon"
+                  className={addActionButtonClass}
+                  style={{ WebkitAppRegion: "no-drag" } as any}
+                >
+                  <Plus className="w-5 h-5" />
+                </Button>
+              )}
             </div>
           </div>
         </div>
