@@ -1565,7 +1565,7 @@ function App() {
       )}
 
       <header
-        className="fixed z-50 transition-all duration-300 bg-background/80 backdrop-blur-md"
+        className="fixed z-50 transition-all duration-300 bg-background"
         style={{
           left: SIDEBAR_WIDTH,
           right: 0,
@@ -1595,9 +1595,9 @@ function App() {
                         : "providers",
                     )
                   }
-                  className="mr-2 rounded-lg"
+                  className="mr-2 h-7 w-7 rounded-lg"
                 >
-                  <ArrowLeft className="w-4 h-4" />
+                  <ArrowLeft className="w-3.5 h-3.5" />
                 </Button>
                 <h1 className="text-lg font-semibold">
                   {currentView === "settings" && t("settings.title")}
@@ -1748,7 +1748,7 @@ function App() {
                 )}
                 {currentView === "providers" && (
                   <>
-                    <div className="flex items-center gap-1 p-1 bg-muted rounded-xl">
+                    <div className="flex items-center gap-1">
                       <AnimatePresence mode="wait">
                         <motion.div
                           key={
@@ -1770,37 +1770,52 @@ function App() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setCurrentView("skills")}
-                                className="text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 w-8 px-2"
-                                title={t("skills.manage")}
+                                className={cn(
+                                  "h-9 rounded-lg px-3 text-xs gap-1.5",
+                                  currentView === "skills"
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-background/70",
+                                )}
                               >
                                 <Wrench className="w-4 h-4" />
+                                {t("skills.manage")}
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setCurrentView("hermesMemory")}
-                                className="text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 w-8 px-2"
-                                title={t("hermes.memory.title")}
+                                className={cn(
+                                  "h-9 rounded-lg px-3 text-xs gap-1.5",
+                                  currentView === "hermesMemory"
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-background/70",
+                                )}
                               >
                                 <Brain className="w-4 h-4" />
+                                {t("hermes.memory.title")}
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => void openHermesWebUI()}
-                                className="text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 w-8 px-2"
-                                title={t("hermes.webui.open")}
+                                className="h-9 rounded-lg px-3 text-xs gap-1.5 text-muted-foreground hover:text-foreground hover:bg-background/70"
                               >
                                 <LayoutDashboard className="w-4 h-4" />
+                                {t("hermes.webui.open")}
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setCurrentView("mcp")}
-                                className="text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 w-8 px-2"
-                                title={t("mcp.title")}
+                                className={cn(
+                                  "h-9 rounded-lg px-3 text-xs gap-1.5",
+                                  currentView === "mcp"
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-background/70",
+                                )}
                               >
                                 <McpIcon size={16} />
+                                {t("mcp.title")}
                               </Button>
                             </>
                           ) : activeApp === "openclaw" ? (
@@ -1809,97 +1824,134 @@ function App() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setCurrentView("workspace")}
-                                className="text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 w-8 px-2"
-                                title={t("workspace.manage")}
+                                className={cn(
+                                  "h-9 rounded-lg px-3 text-xs gap-1.5",
+                                  currentView === "workspace"
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-background/70",
+                                )}
                               >
                                 <FolderOpen className="w-4 h-4" />
+                                {t("workspace.manage")}
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setCurrentView("openclawEnv")}
-                                className="text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 w-8 px-2"
-                                title={t("openclaw.env.title")}
+                                className={cn(
+                                  "h-9 rounded-lg px-3 text-xs gap-1.5",
+                                  currentView === "openclawEnv"
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-background/70",
+                                )}
                               >
                                 <KeyRound className="w-4 h-4" />
+                                {t("openclaw.env.title")}
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setCurrentView("openclawTools")}
-                                className="text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 w-8 px-2"
-                                title={t("openclaw.tools.title")}
+                                className={cn(
+                                  "h-9 rounded-lg px-3 text-xs gap-1.5",
+                                  currentView === "openclawTools"
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-background/70",
+                                )}
                               >
                                 <Shield className="w-4 h-4" />
+                                {t("openclaw.tools.title")}
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setCurrentView("openclawAgents")}
-                                className="text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 w-8 px-2"
-                                title={t("openclaw.agents.title")}
+                                className={cn(
+                                  "h-9 rounded-lg px-3 text-xs gap-1.5",
+                                  currentView === "openclawAgents"
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-background/70",
+                                )}
                               >
                                 <Cpu className="w-4 h-4" />
+                                {t("openclaw.agents.title")}
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setCurrentView("sessions")}
-                                className="text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 w-8 px-2"
-                                title={t("sessionManager.title")}
+                                className={cn(
+                                  "h-9 rounded-lg px-3 text-xs gap-1.5",
+                                  currentView === "sessions"
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-background/70",
+                                )}
                               >
                                 <History className="w-4 h-4" />
+                                {t("sessionManager.title")}
                               </Button>
                             </>
                           ) : (
                             <>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setCurrentView("skills")}
-                                className={cn(
-                                  "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5",
-                                  "transition-all duration-200 ease-in-out overflow-hidden",
-                                  hasSkillsSupport
-                                    ? "opacity-100 w-8 scale-100 px-2"
-                                    : "opacity-0 w-0 scale-75 pointer-events-none px-0 -ml-1",
-                                )}
-                                title={t("skills.manage")}
-                              >
-                                <Wrench className="flex-shrink-0 w-4 h-4" />
-                              </Button>
+                              {hasSkillsSupport && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setCurrentView("skills")}
+                                  className={cn(
+                                    "h-9 rounded-lg px-3 text-xs gap-1.5",
+                                    currentView === "skills"
+                                      ? "bg-background text-foreground shadow-sm"
+                                      : "text-muted-foreground hover:text-foreground hover:bg-background/70",
+                                  )}
+                                >
+                                  <Wrench className="w-4 h-4" />
+                                  {t("skills.manage")}
+                                </Button>
+                              )}
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setCurrentView("prompts")}
-                                className="text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 w-8 px-2"
-                                title={t("prompts.manage")}
+                                className={cn(
+                                  "h-9 rounded-lg px-3 text-xs gap-1.5",
+                                  currentView === "prompts"
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-background/70",
+                                )}
                               >
                                 <Book className="w-4 h-4" />
+                                {t("prompts.manage")}
                               </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setCurrentView("sessions")}
-                                className={cn(
-                                  "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5",
-                                  "transition-all duration-200 ease-in-out overflow-hidden",
-                                  hasSessionSupport
-                                    ? "opacity-100 w-8 scale-100 px-2"
-                                    : "opacity-0 w-0 scale-75 pointer-events-none px-0 -ml-1",
-                                )}
-                                title={t("sessionManager.title")}
-                              >
-                                <History className="flex-shrink-0 w-4 h-4" />
-                              </Button>
+                              {hasSessionSupport && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setCurrentView("sessions")}
+                                  className={cn(
+                                    "h-9 rounded-lg px-3 text-xs gap-1.5",
+                                    currentView === "sessions"
+                                      ? "bg-background text-foreground shadow-sm"
+                                      : "text-muted-foreground hover:text-foreground hover:bg-background/70",
+                                  )}
+                                >
+                                  <History className="w-4 h-4" />
+                                  {t("sessionManager.title")}
+                                </Button>
+                              )}
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setCurrentView("mcp")}
-                                className="text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 w-8 px-2"
-                                title={t("mcp.title")}
+                                className={cn(
+                                  "h-9 rounded-lg px-3 text-xs gap-1.5",
+                                  currentView === "mcp"
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-background/70",
+                                )}
                               >
                                 <McpIcon size={16} />
+                                {t("mcp.title")}
                               </Button>
                             </>
                           )}
