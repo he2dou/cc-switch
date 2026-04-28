@@ -1449,7 +1449,7 @@ function App() {
         </div>
 
         {/* Bottom actions */}
-        <div className="flex flex-col items-center py-4 gap-2 border-t border-border/50">
+        <div className="flex flex-col items-center py-8 gap-2">
           <Button
             variant="ghost"
             size="icon"
